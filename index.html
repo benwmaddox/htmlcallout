@@ -8,7 +8,13 @@
     <h1 data-bind="innerHTML:header">
 
     </h1>        
-    <button data-bind="click:showAlert,HEY THERE;innerHTML:alertButtonText"></button>
+    <button data-bind="click:showAlert,HEY THERE; innerHTML:alertButtonText"></button>
+
+    <div>
+        <span data-bind="innerHTML: incrementCounter"></span>
+        <button data-bind="click:increase">+</button>
+        <button data-bind="click:decrease">-</button>
+    </div>
 
     <script type="text/javascript" src="htmlCallout.js"></script>         
     <script type="text/javascript" src="main.js"></script>      

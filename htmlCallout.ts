@@ -2,21 +2,20 @@ interface BoundType {
     [key:string]: any;
 }
 class Callout<T extends BoundType>{
-    /**
-     *
-     */
-    public boundModel : T;    
-    public boundSelf : Callout<T>;
-    public actions : {[key : string]: (boundModel : T, ...parameters : string[]) => void;}
-    public dataBoundId : number = 1;
-    constructor(boundModel : T, actions:{[key : string]: (boundModel : T, ...parameters : string[]) => void;}) {
-        this.boundModel = boundModel;                
+    private boundModel : T;    
+    private boundSelf : Callout<T>;
+    private actions : {[key : string]: (boundModel : T, ...parameters : string[]) => void;}
+    private dataBoundId : number = 1;
+    private rootElement : HTMLElement;
+    constructor(boundModel : T, htmlElement : HTMLElement, actions:{[key : string]: (boundModel : T, ...parameters : string[]) => void;}) {
+        this.boundModel = boundModel;   
+        this.rootElement = htmlElement;             
         this.actions = actions;
         this.boundSelf = this;
-        this.initNodes();
+        this.applyBindings();
     }
-    public initNodes(){
-        var modelNodes = document.querySelectorAll('[data-bind]');
+    public applyBindings(){
+        var modelNodes = this.rootElement.querySelectorAll('[data-bind]');
         for(var i = 0; i < modelNodes.length; i++){
             var item = modelNodes.item(i);
             var id = item.getAttribute("data-bound-id");
@@ -26,35 +25,26 @@ class Callout<T extends BoundType>{
             else{ // Already bound
                 continue;
             }
-            var modelValue = item.getAttribute("data-bind");            
+            var modelValue = item.getAttribute("data-bind");
             if (modelValue !== null){
                 this.applyBoundActions(item, <string>modelValue);                
             }
         }
 
     }
-    public applyBoundActions(element : Element, attribute : string){
+    private applyBoundActions(element : Element, attribute : string){
         // Different actions split by ;. Action type then : then comma split values.  
         // ex/
         // innerHTML: title; click: someAction()
         var actions = attribute.split(';');
         actions.forEach(action  => {
-            var actionName = action.split(":")[0];
+            var actionName = action.split(":")[0].trim();
             var parameters = action.split(":")[1].split(',');
-            this.actions[actionName].call(element, this.boundModel, ...parameters);
+            var actionFunction = this.actions[actionName];
+            if (actionFunction === undefined){
+                throw `Action ${actionName} wasn't provided.  Please make sure that is a valid action name and that it was provided.`
+            }
+            actionFunction.call(element, this.boundModel, ...parameters);
         });
-        // var attributeValue = this.boundModel[modelValue];
-        // if (attributeValue === undefined){
-        //     throw modelValue + ' does not exist on object';
-        // }
-        // item.innerHTML = attributeValue;
     }
-    public model(event : Event, name: string) {
-        if (typeof(event.target) == typeof(HTMLElement)){
-            (<HTMLElement>event.target).innerText = this.boundModel[name.trim()];
-        }
-        // this.target.addEventListener("change", function(){
-        //     this.boundSelf
-        // })
-    }    
 }
