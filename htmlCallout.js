@@ -8,7 +8,7 @@ var Callout = (function () {
         this.initNodes();
     }
     Callout.prototype.initNodes = function () {
-        var modelNodes = document.querySelectorAll('[data-model]');
+        var modelNodes = document.querySelectorAll('[data-bind]');
         for (var i = 0; i < modelNodes.length; i++) {
             var item = modelNodes.item(i);
             var id = item.getAttribute("data-bound-id");
@@ -18,7 +18,7 @@ var Callout = (function () {
             else {
                 continue;
             }
-            var modelValue = item.getAttribute("data-model");
+            var modelValue = item.getAttribute("data-bind");
             if (modelValue !== null) {
                 this.applyBoundActions(item, modelValue);
             }
@@ -33,7 +33,8 @@ var Callout = (function () {
         actions.forEach(function (action) {
             var actionName = action.split(":")[0];
             var parameters = action.split(":")[1].split(',');
-            _this.actions[actionName].call(element, _this.boundModel, parameters);
+            (_a = _this.actions[actionName]).call.apply(_a, [element, _this.boundModel].concat(parameters));
+            var _a;
         });
         // var attributeValue = this.boundModel[modelValue];
         // if (attributeValue === undefined){
