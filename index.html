@@ -5,9 +5,7 @@
     <body>
         
     
-    <h1 data-bind="innerHTML:header">
-
-    </h1>        
+    <h1 data-bind="innerHTML:header"></h1>        
     <button data-bind="click:showAlert,HEY THERE; innerHTML:alertButtonText"></button>
 
     <div>
@@ -16,11 +14,16 @@
         <button data-bind="click:decrease">-</button>
     </div>
 
-    <input type="text" data-bind="numberInput: boundNumber" value="5" />
-    
+    <input type="number" data-bind="numberInput: boundNumber" value="5" />    
     <span  data-bind="innerHTML: boundNumber"  ></span>
 
-    <script type="text/javascript" src="htmlCallout.js"></script>         
+
+    <div>
+        <input type="text" data-bind="textInput: boundText" value="" />    
+        <span  data-bind="innerHTML: boundText"  ></span>
+    </div>
+
+    <script type="text/javascript" src="htmlCallout.js"></script>      
     <script type="text/javascript" src="main.js"></script>      
     </body>
     </html>
