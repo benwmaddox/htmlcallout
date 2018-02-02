@@ -4,15 +4,25 @@ interface BoundType {
 class Callout<T extends BoundType>{
     private boundModel : T;    
     private boundSelf : Callout<T>;
-    private actions : {[key : string]: (boundModel : T, ...parameters : string[]) => void;}
+    private actions : {[key : string]: (boundModel : T, ...parameters : string[]) => (Function | null);}
     private dataBoundId : number = 1;
     private rootElement : HTMLElement;
-    constructor(boundModel : T, htmlElement : HTMLElement, actions:{[key : string]: (boundModel : T, ...parameters : string[]) => void;}) {
+    private updateCallbacks : Function[] = [];
+    constructor(boundModel : T, htmlElement : HTMLElement, actions:{[key : string]: (boundModel : T, ...parameters : string[]) => (Function | null);}) {
         this.boundModel = boundModel;   
         this.rootElement = htmlElement;             
         this.actions = actions;
         this.boundSelf = this;
         this.applyBindings();
+    }
+    public runUpdatesOnInterval(intervalInMs : number){        
+        setInterval(this.runUpdates, intervalInMs)
+    }
+    runUpdates = () => {
+        var callbacks = this.updateCallbacks;
+        for(var i=0;i < callbacks.length;i++){
+            callbacks[i]();
+        }
     }
     public applyBindings(){
         var modelNodes = this.rootElement.querySelectorAll('[data-bind]');
@@ -31,7 +41,6 @@ class Callout<T extends BoundType>{
             }
             item.removeAttribute("data-bind")
         }
-
     }
     private applyBoundActions(element : Element, attribute : string){
         // Different actions split by ;. Action type then : then comma split values.  
@@ -48,7 +57,10 @@ class Callout<T extends BoundType>{
             if (actionFunction === undefined){
                 throw `Action ${actionName} wasn't provided.  Please make sure that is a valid action name and that it was provided.`
             }
-            actionFunction.call(element, this.boundModel, ...parameters);
+            var updateCallback = actionFunction.call(element, this.boundModel, ...parameters);
+            if (updateCallback != null){
+                this.updateCallbacks.push(updateCallback);
+            }
         });
     }
 }

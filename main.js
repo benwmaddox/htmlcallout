@@ -27,7 +27,7 @@ var actions = {
             params[_i - 1] = arguments[_i];
         }
         // Set inner text at start. Not waiting.
-        var fieldName = params[0].trim();
+        var fieldName = params[0];
         var htmlElement = this;
         var value = null;
         var update = function () {
@@ -37,27 +37,28 @@ var actions = {
                 htmlElement.innerHTML = newValue;
             }
         };
-        setInterval(update, 16);
+        return update;
     },
     click: function (boundModel) {
         var params = [];
         for (var _i = 1; _i < arguments.length; _i++) {
             params[_i - 1] = arguments[_i];
         }
-        var fieldName = params[0].trim();
+        var fieldName = params[0];
         if (boundModel[fieldName] === undefined) {
             throw "click: FieldName " + fieldName + " wasn't valid.";
         }
         this.addEventListener('click', function (ev) {
             boundModel[fieldName].apply(boundModel, [ev].concat(params.slice(1)));
         });
+        return null;
     },
     numberInput: function (boundModel) {
         var params = [];
         for (var _i = 1; _i < arguments.length; _i++) {
             params[_i - 1] = arguments[_i];
         }
-        var fieldName = params[0].trim();
+        var fieldName = params[0];
         if (boundModel[fieldName] === undefined) {
             throw "numberInput: FieldName " + fieldName + " wasn't valid.";
         }
@@ -67,7 +68,9 @@ var actions = {
         this.addEventListener('keyup', function (ev) {
             boundModel[fieldName] = Number(ev.target.value);
         });
+        return null;
     }
 };
 var model = new Model();
 var callout = new Callout(model, document.body, actions);
+callout.runUpdatesOnInterval(16);

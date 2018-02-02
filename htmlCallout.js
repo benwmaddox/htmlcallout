@@ -1,13 +1,24 @@
 "use strict";
 var Callout = (function () {
     function Callout(boundModel, htmlElement, actions) {
+        var _this = this;
         this.dataBoundId = 1;
+        this.updateCallbacks = [];
+        this.runUpdates = function () {
+            var callbacks = _this.updateCallbacks;
+            for (var i = 0; i < callbacks.length; i++) {
+                callbacks[i]();
+            }
+        };
         this.boundModel = boundModel;
         this.rootElement = htmlElement;
         this.actions = actions;
         this.boundSelf = this;
         this.applyBindings();
     }
+    Callout.prototype.runUpdatesOnInterval = function (intervalInMs) {
+        setInterval(this.runUpdates, intervalInMs);
+    };
     Callout.prototype.applyBindings = function () {
         var modelNodes = this.rootElement.querySelectorAll('[data-bind]');
         for (var i = 0; i < modelNodes.length; i++) {
@@ -42,7 +53,10 @@ var Callout = (function () {
             if (actionFunction === undefined) {
                 throw "Action " + actionName + " wasn't provided.  Please make sure that is a valid action name and that it was provided.";
             }
-            actionFunction.call.apply(actionFunction, [element, _this.boundModel].concat(parameters));
+            var updateCallback = actionFunction.call.apply(actionFunction, [element, _this.boundModel].concat(parameters));
+            if (updateCallback != null) {
+                _this.updateCallbacks.push(updateCallback);
+            }
         });
     };
     return Callout;
