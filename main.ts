@@ -20,11 +20,7 @@ class Model  {
 }
 
 var actions = {
-    innerHTML : innerHTML,    
-    innerText : innerText,
-    click : click,
-    numberInput : numberInput,
-    textInput : textInput
+    ...StandardActionLibrary
 }
 var model = new Model();
 var callout = new Callout<Model>(model, <HTMLDivElement>document.getElementById('main'), actions);
@@ -39,7 +35,7 @@ class OtherModel {
 }
 var secondModel = new OtherModel();
 var secondaryActions = {    
-    innerText : innerText
+    innerText : StandardActionLibrary.innerText
 }
 var secondaryCallout = new Callout<OtherModel>(secondModel, <HTMLDivElement>document.getElementById('secondary'), secondaryActions);
 secondaryCallout.runUpdatesOnInterval(16);

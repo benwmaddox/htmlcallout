@@ -70,8 +70,8 @@ class Callout<T extends BoundType>{
 
 // TODO: build out a getter method that can expand fieldnames that traverse multiple layers of objects.
 // TODO: build out a setter method that can expand fieldnames that traverse multiple layers of objects.
-
-let innerHTML = function<T extends BoundType>(this : HTMLElement, boundModel : T, ...params : string[]){        
+let StandardActionLibrary = {
+    innerHTML: function<T extends BoundType>(this : HTMLElement, boundModel : T, ...params : string[]){        
     // Set inner text at start. Not waiting.
     let fieldName = params[0];
     let htmlElement = this;
@@ -88,8 +88,8 @@ let innerHTML = function<T extends BoundType>(this : HTMLElement, boundModel : T
         }
     }
     return update;
-};
-let innerText = function<T extends BoundType>(this : HTMLElement, boundModel : T, ...params : string[]) : Function{        
+},
+innerText: function<T extends BoundType>(this : HTMLElement, boundModel : T, ...params : string[]) : Function{        
     // Set inner text at start. Not waiting.
     let fieldName = params[0];
     let htmlElement = this;
@@ -106,8 +106,8 @@ let innerText = function<T extends BoundType>(this : HTMLElement, boundModel : T
         }
     }
     return update;
-};
-let click = function<T extends BoundType>(this : HTMLElement, boundModel : Model, ...params : string[]) : null {        
+},
+click: function<T extends BoundType>(this : HTMLElement, boundModel : Model, ...params : string[]) : null {        
     let fieldName = params[0];
     if (boundModel[fieldName] === undefined){            
         throw `click: FieldName ${fieldName} wasn't valid.`;
@@ -116,8 +116,8 @@ let click = function<T extends BoundType>(this : HTMLElement, boundModel : Model
         boundModel[fieldName](ev, ...params.slice(1));
     });
     return null;
-};
-let numberInput  = function<T extends BoundType>(this : HTMLElement, boundModel : Model, ...params : string[]) : null {         
+},
+ numberInput: function<T extends BoundType>(this : HTMLElement, boundModel : Model, ...params : string[]) : null {         
     let fieldName = params[0];
     if (boundModel[fieldName] === undefined){            
         throw `numberInput: FieldName ${fieldName} wasn't valid.`;
@@ -130,8 +130,8 @@ let numberInput  = function<T extends BoundType>(this : HTMLElement, boundModel 
     })
     //TODO: Should this be two way binding or not?
     return null;
-};
-let textInput  = function<T extends BoundType>(this : HTMLElement, boundModel : Model, ...params : string[]) : null{         
+},
+textInput: function<T extends BoundType>(this : HTMLElement, boundModel : Model, ...params : string[]) : null{         
     let fieldName = params[0];
     if (boundModel[fieldName] === undefined){            
         throw `textInput: FieldName ${fieldName} wasn't valid.`;
@@ -144,4 +144,5 @@ let textInput  = function<T extends BoundType>(this : HTMLElement, boundModel : 
     })
     //TODO: Should this be two way binding or not?
     return null;
-};
+}
+}
