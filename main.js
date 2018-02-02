@@ -12,6 +12,7 @@ var Model = (function () {
         this.decrease = function (ev, text) {
             _this.incrementCounter--;
         };
+        this.boundNumber = 5;
     }
     Model.prototype.showAlert = function (ev, text) {
         alert('It works! ' + text);
@@ -19,14 +20,6 @@ var Model = (function () {
     ;
     return Model;
 }());
-// var model : Model = {
-//     header: "Sample",
-//     alertButtonText: "Click to alert",
-//     showAlert: function(ev: Event, text: string) {
-//         alert('It works! ' + text)
-//     },
-//     increase: function() 
-// };
 var actions = {
     innerHTML: function (boundModel) {
         var params = [];
@@ -35,19 +28,44 @@ var actions = {
         }
         // Set inner text at start. Not waiting.
         var fieldName = params[0].trim();
-        this.innerHTML = boundModel[fieldName];
+        var htmlElement = this;
+        var value = null;
+        var update = function () {
+            var newValue = boundModel[fieldName];
+            if (value === null || (newValue !== null && newValue !== value)) {
+                value = newValue;
+                htmlElement.innerHTML = newValue;
+            }
+        };
+        setInterval(update, 16);
     },
     click: function (boundModel) {
         var params = [];
         for (var _i = 1; _i < arguments.length; _i++) {
             params[_i - 1] = arguments[_i];
         }
-        var fieldName = params[0];
+        var fieldName = params[0].trim();
         if (boundModel[fieldName] === undefined) {
-            throw "Click: FieldName " + fieldName + " wasn't valid.";
+            throw "click: FieldName " + fieldName + " wasn't valid.";
         }
         this.addEventListener('click', function (ev) {
             boundModel[fieldName].apply(boundModel, [ev].concat(params.slice(1)));
+        });
+    },
+    numberInput: function (boundModel) {
+        var params = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            params[_i - 1] = arguments[_i];
+        }
+        var fieldName = params[0].trim();
+        if (boundModel[fieldName] === undefined) {
+            throw "numberInput: FieldName " + fieldName + " wasn't valid.";
+        }
+        if (!(this instanceof HTMLInputElement)) {
+            throw "numberInput: FieldName " + fieldName + " wasn't an HTML Input Element. Please only use on HTML Input Elements";
+        }
+        this.addEventListener('keyup', function (ev) {
+            boundModel[fieldName] = Number(ev.target.value);
         });
     }
 };

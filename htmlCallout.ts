@@ -29,6 +29,7 @@ class Callout<T extends BoundType>{
             if (modelValue !== null){
                 this.applyBoundActions(item, <string>modelValue);                
             }
+            item.removeAttribute("data-bind")
         }
 
     }
@@ -40,6 +41,9 @@ class Callout<T extends BoundType>{
         actions.forEach(action  => {
             var actionName = action.split(":")[0].trim();
             var parameters = action.split(":")[1].split(',');
+            for (var i = 0; i < parameters.length; i++){
+                parameters[i] = parameters[i].trim();
+            }
             var actionFunction = this.actions[actionName];
             if (actionFunction === undefined){
                 throw `Action ${actionName} wasn't provided.  Please make sure that is a valid action name and that it was provided.`

@@ -15,30 +15,45 @@ class Model  {
     public decrease = (ev:Event, text:string) => {
         this.incrementCounter--;
     };
+    public boundNumber : number = 5;
 }
-// var model : Model = {
-//     header: "Sample",
-//     alertButtonText: "Click to alert",
-//     showAlert: function(ev: Event, text: string) {
-//         alert('It works! ' + text)
-//     },
-//     increase: function() 
-// };
+
 var actions = {
     innerHTML : function(this : HTMLElement, boundModel : Model, ...params : string[]){        
         // Set inner text at start. Not waiting.
         var fieldName = params[0].trim();
-        this.innerHTML = boundModel[fieldName];
+        var htmlElement = this;
+        var value : string | null = null;
+        var update = function(){
+            var newValue = boundModel[fieldName];
+            if (value === null || (newValue !== null && newValue !== value)){
+                value = newValue;
+                htmlElement.innerHTML = newValue;
+            }
+        }
+        setInterval(update, 16);
     },
-    click : function(this : HTMLElement, boundModel : Model, ...params : string[]){
-        
-        var fieldName = params[0];
+    click : function(this : HTMLElement, boundModel : Model, ...params : string[]){        
+        var fieldName = params[0].trim();
         if (boundModel[fieldName] === undefined){            
-            throw `Click: FieldName ${fieldName} wasn't valid.`
+            throw `click: FieldName ${fieldName} wasn't valid.`;
         }
         this.addEventListener('click', function(ev : MouseEvent){
             boundModel[fieldName](ev, ...params.slice(1));
         });
+    },
+    numberInput : function(this : HTMLElement, boundModel : Model, ...params : string[]){         
+        var fieldName = params[0].trim();
+        if (boundModel[fieldName] === undefined){            
+            throw `numberInput: FieldName ${fieldName} wasn't valid.`;
+        }
+        if (!(this instanceof HTMLInputElement)){
+            throw `numberInput: FieldName ${fieldName} wasn't an HTML Input Element. Please only use on HTML Input Elements`;
+        }
+        this.addEventListener('keyup', function(ev : Event){
+            boundModel[fieldName] = Number((<HTMLInputElement>ev.target).value);
+        })
+        
     }
 }
 var model = new Model();

@@ -23,6 +23,7 @@ var Callout = (function () {
             if (modelValue !== null) {
                 this.applyBoundActions(item, modelValue);
             }
+            item.removeAttribute("data-bind");
         }
     };
     Callout.prototype.applyBoundActions = function (element, attribute) {
@@ -34,6 +35,9 @@ var Callout = (function () {
         actions.forEach(function (action) {
             var actionName = action.split(":")[0].trim();
             var parameters = action.split(":")[1].split(',');
+            for (var i = 0; i < parameters.length; i++) {
+                parameters[i] = parameters[i].trim();
+            }
             var actionFunction = _this.actions[actionName];
             if (actionFunction === undefined) {
                 throw "Action " + actionName + " wasn't provided.  Please make sure that is a valid action name and that it was provided.";
