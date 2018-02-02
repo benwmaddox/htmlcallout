@@ -10,6 +10,7 @@ var Callout = (function () {
                 callbacks[i]();
             }
         };
+        Callout.calloutId++;
         this.boundModel = boundModel;
         this.rootElement = htmlElement;
         this.actions = actions;
@@ -25,7 +26,7 @@ var Callout = (function () {
             var item = modelNodes.item(i);
             var id = item.getAttribute("data-bound-id");
             if (id === null) {
-                item.setAttribute("data-bound-id", (this.dataBoundId++).toString());
+                item.setAttribute("data-bound-id", (Callout.calloutId).toString() + "_" + (this.dataBoundId++).toString());
             }
             else {
                 continue;
@@ -59,6 +60,7 @@ var Callout = (function () {
             }
         });
     };
+    Callout.calloutId = 0;
     return Callout;
 }());
 // TODO: build out a getter method that can expand fieldnames that traverse multiple layers of objects.

@@ -29,5 +29,19 @@ var actions = {
     textInput: textInput
 };
 var model = new Model();
-var callout = new Callout(model, document.body, actions);
+var callout = new Callout(model, document.getElementById('main'), actions);
 callout.runUpdatesOnInterval(16);
+//////////////////////////////////////
+var OtherModel = (function () {
+    function OtherModel() {
+        this.header = "Second Sample";
+    }
+    return OtherModel;
+}());
+var secondModel = new OtherModel();
+var secondaryActions = {
+    innerText: innerText
+};
+var secondaryCallout = new Callout(secondModel, document.getElementById('secondary'), secondaryActions);
+secondaryCallout.runUpdatesOnInterval(16);
+////////////////////////////////////// 

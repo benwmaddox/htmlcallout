@@ -5,10 +5,12 @@ class Callout<T extends BoundType>{
     private boundModel : T;    
     private boundSelf : Callout<T>;
     private actions : {[key : string]: (boundModel : T, ...parameters : string[]) => (Function | null);}
+    private static calloutId : number = 0;
     private dataBoundId : number = 1;
     private rootElement : HTMLElement;
     private updateCallbacks : Function[] = [];
     constructor(boundModel : T, htmlElement : HTMLElement, actions:{[key : string]: (boundModel : T, ...parameters : string[]) => (Function | null);}) {
+        Callout.calloutId++;
         this.boundModel = boundModel;   
         this.rootElement = htmlElement;             
         this.actions = actions;
@@ -30,7 +32,7 @@ class Callout<T extends BoundType>{
             var item = modelNodes.item(i);
             var id = item.getAttribute("data-bound-id");
             if (id === null) {
-                item.setAttribute("data-bound-id", (this.dataBoundId++).toString());                
+                item.setAttribute("data-bound-id", (Callout.calloutId).toString()+"_"+(this.dataBoundId++).toString());                
             }
             else{ // Already bound
                 continue;
