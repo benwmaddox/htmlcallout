@@ -1,5 +1,4 @@
 "use strict";
-/// <reference path="htmlCallout.ts" />
 var __assign = (this && this.__assign) || Object.assign || function(t) {
     for (var s, i = 1, n = arguments.length; i < n; i++) {
         s = arguments[i];
@@ -8,11 +7,20 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     }
     return t;
 };
+/// <reference path="htmlCallout.ts" />
+var SubModel = (function () {
+    function SubModel() {
+        this.subHeader = "Sub Value";
+    }
+    return SubModel;
+}());
 var Model = (function () {
     function Model() {
         var _this = this;
         this.header = "Sample";
         this.alertButtonText = "Click to alert";
+        this.sub = new SubModel();
+        this.subList = [(new SubModel(), new SubModel())];
         this.incrementCounter = 0;
         this.increase = function (ev, text) {
             _this.incrementCounter++;

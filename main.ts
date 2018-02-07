@@ -1,5 +1,7 @@
 /// <reference path="htmlCallout.ts" />
-
+class SubModel {
+    public subHeader : string = "Sub Value"
+}
 class Model  {
     [key:string]: any;
     public header : string = "Sample";
@@ -7,6 +9,8 @@ class Model  {
     public showAlert(ev: Event, text: string) {
         alert('It works! ' + text)
     };
+    public sub : SubModel = new SubModel();
+    public subList : SubModel[]  = [(new SubModel(), new SubModel())]
 
     public incrementCounter : number = 0;
     public increase = (ev:Event, text:string) => {

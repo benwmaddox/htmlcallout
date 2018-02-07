@@ -22,20 +22,14 @@ var Callout = (function () {
         this.runUpdates();
     };
     Callout.prototype.applyBindings = function () {
-        var modelNodes = this.rootElement.querySelectorAll('[data-bind]');
+        var modelNodes = this.rootElement.querySelectorAll('[data-bind]:not([data-bound-id])');
         for (var i = 0; i < modelNodes.length; i++) {
             var item = modelNodes.item(i);
-            var id = item.getAttribute("data-bound-id");
-            if (id !== null) {
-                // Already bound
-                continue;
-            }
             item.setAttribute("data-bound-id", (Callout.calloutId).toString() + "_" + (this.dataBoundId++).toString());
             var modelValue = item.getAttribute("data-bind");
             if (modelValue !== null) {
                 this.applyBoundActions(item, modelValue);
             }
-            // item.removeAttribute("data-bind")
         }
     };
     Callout.prototype.applyBoundActions = function (element, attribute) {
@@ -63,6 +57,70 @@ var Callout = (function () {
     Callout.calloutId = 0;
     return Callout;
 }());
+var getFieldValue = function (boundModel, path, index) {
+    if (index === void 0) { index = 0; }
+    var remainingPath = path;
+    var pathParts = [];
+    while (remainingPath.length > 0) {
+        var remainingPathRestart = false;
+        for (var i = 0; i < remainingPath.length && !remainingPathRestart; i++) {
+            if (remainingPath[i] == ".") {
+                var part = remainingPath.substr(0, i);
+                if (i > 0) {
+                    pathParts.push(part);
+                }
+                remainingPath = remainingPath.substr(i + 1);
+                remainingPathRestart = true;
+            }
+            else if (remainingPath[i] == "[") {
+                pathParts.push(remainingPath.substr(0, i));
+                remainingPath = remainingPath.substr(i + 1);
+                remainingPathRestart = true;
+            }
+            else if (remainingPath[i] == "]") {
+                var part = remainingPath.substr(0, i);
+                pathParts.push(Number(part)); // Check for number?
+                remainingPath = remainingPath.substr(i + 1);
+                remainingPathRestart = true;
+            }
+            else if (remainingPath.length > 2 && (remainingPath.substr(i, 2) == "{{" || remainingPath.substr(i, 2) == "}}")) {
+                pathParts.push(remainingPath.substr(0, i));
+                remainingPath = remainingPath.substr(i + 2);
+                remainingPathRestart = true;
+            }
+            else if (remainingPath.length > 6 && remainingPath.substr(i, 6) == "$index") {
+                pathParts.push(remainingPath.substr(0, i));
+                remainingPath = remainingPath.substr(i + 6);
+                remainingPathRestart = true;
+            }
+            else if (remainingPath.length == i + 1) {
+                pathParts.push(remainingPath);
+                remainingPath = "";
+            }
+        }
+    }
+    // while(remainingPath.indexOf(".") !== -1 || remainingPath.indexOf("{{") !== -1 || remainingPath.indexOf("[") !== -1 || remainingPath.indexOf("$index") !== -1){
+    // }
+    var property = boundModel;
+    for (var i = 0; i < pathParts.length; i++) {
+        property = property[pathParts[i]];
+    }
+    return property;
+    // while (remainingPath.indexOf("$index") !== -1){
+    //     remainingPath = remainingPath.replace("$index", index.toString());
+    // }
+    // Split on .
+    // Split on []
+    // replace anything in {{}} with result of it (run another getFieldValue first)
+    // replace $index with the actual index, if applicable
+};
+var setFieldValue = function (boundModel, path, value, index) {
+    if (index === void 0) { index = 0; }
+    // Split on .
+    // Split on []
+    // replace anything in {{}} with result of it (run another getFieldValue first)
+    // replace $index with the actual index, if applicable
+};
 // TODO: build out a getter method that can expand fieldnames that traverse multiple layers of objects.
 // TODO: build out a setter method that can expand fieldnames that traverse multiple layers of objects.
 var StandardActionLibrary = {
