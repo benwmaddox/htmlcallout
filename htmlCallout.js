@@ -19,23 +19,23 @@ var Callout = (function () {
     }
     Callout.prototype.runUpdatesOnInterval = function (intervalInMs) {
         setInterval(this.runUpdates, intervalInMs);
+        this.runUpdates();
     };
     Callout.prototype.applyBindings = function () {
         var modelNodes = this.rootElement.querySelectorAll('[data-bind]');
         for (var i = 0; i < modelNodes.length; i++) {
             var item = modelNodes.item(i);
             var id = item.getAttribute("data-bound-id");
-            if (id === null) {
-                item.setAttribute("data-bound-id", (Callout.calloutId).toString() + "_" + (this.dataBoundId++).toString());
-            }
-            else {
+            if (id !== null) {
+                // Already bound
                 continue;
             }
+            item.setAttribute("data-bound-id", (Callout.calloutId).toString() + "_" + (this.dataBoundId++).toString());
             var modelValue = item.getAttribute("data-bind");
             if (modelValue !== null) {
                 this.applyBoundActions(item, modelValue);
             }
-            item.removeAttribute("data-bind");
+            // item.removeAttribute("data-bind")
         }
     };
     Callout.prototype.applyBoundActions = function (element, attribute) {

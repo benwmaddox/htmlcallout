@@ -29,7 +29,9 @@ var Model = (function () {
     ;
     return Model;
 }());
-var actions = __assign({}, StandardActionLibrary);
+var actions = __assign({}, StandardActionLibrary
+// Could append custom ones here...
+);
 var model = new Model();
 var callout = new Callout(model, document.getElementById('main'), actions);
 callout.runUpdatesOnInterval(16);
@@ -37,6 +39,7 @@ callout.runUpdatesOnInterval(16);
 var OtherModel = (function () {
     function OtherModel() {
         this.header = "Second Sample";
+        this.boundText = "Second text";
     }
     return OtherModel;
 }());
@@ -45,5 +48,5 @@ var secondaryActions = {
     innerText: StandardActionLibrary.innerText
 };
 var secondaryCallout = new Callout(secondModel, document.getElementById('secondary'), secondaryActions);
-secondaryCallout.runUpdatesOnInterval(16);
+secondaryCallout.runUpdatesOnInterval(1000);
 ////////////////////////////////////// 

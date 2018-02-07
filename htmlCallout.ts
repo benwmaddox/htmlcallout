@@ -19,6 +19,7 @@ class Callout<T extends BoundType>{
     }
     public runUpdatesOnInterval(intervalInMs : number){        
         setInterval(this.runUpdates, intervalInMs)
+        this.runUpdates();
     }
     runUpdates = () => {
         var callbacks = this.updateCallbacks;
@@ -31,17 +32,17 @@ class Callout<T extends BoundType>{
         for(var i = 0; i < modelNodes.length; i++){
             var item = modelNodes.item(i);
             var id = item.getAttribute("data-bound-id");
-            if (id === null) {
-                item.setAttribute("data-bound-id", (Callout.calloutId).toString()+"_"+(this.dataBoundId++).toString());                
+            if (id !== null) {
+                // Already bound
+                continue;               
             }
-            else{ // Already bound
-                continue;
-            }
+            
+            item.setAttribute("data-bound-id", (Callout.calloutId).toString()+"_"+(this.dataBoundId++).toString());                
             var modelValue = item.getAttribute("data-bind");
             if (modelValue !== null){
                 this.applyBoundActions(item, <string>modelValue);                
             }
-            item.removeAttribute("data-bind")
+            // item.removeAttribute("data-bind")
         }
     }
     private applyBoundActions(element : Element, attribute : string){
@@ -72,77 +73,77 @@ class Callout<T extends BoundType>{
 // TODO: build out a setter method that can expand fieldnames that traverse multiple layers of objects.
 let StandardActionLibrary = {
     innerHTML: function<T extends BoundType>(this : HTMLElement, boundModel : T, ...params : string[]){        
-    // Set inner text at start. Not waiting.
-    let fieldName = params[0];
-    let htmlElement = this;
-    if (boundModel[fieldName] === undefined){            
-        throw `innerHTML: FieldName ${fieldName} wasn't valid.`;
-    }
-    let value : string | null = boundModel[fieldName];        
-    this.innerHTML = value || "";
-    let update = function(){
-        var newValue = boundModel[fieldName];
-        if (newValue !== value){
-            value = newValue;
-            htmlElement.innerHTML = newValue;
+        // Set inner text at start. Not waiting.
+        let fieldName = params[0];
+        let htmlElement = this;
+        if (boundModel[fieldName] === undefined){            
+            throw `innerHTML: FieldName ${fieldName} wasn't valid.`;
         }
-    }
-    return update;
-},
-innerText: function<T extends BoundType>(this : HTMLElement, boundModel : T, ...params : string[]) : Function{        
-    // Set inner text at start. Not waiting.
-    let fieldName = params[0];
-    let htmlElement = this;
-    if (boundModel[fieldName] === undefined){            
-        throw `innerText: FieldName ${fieldName} wasn't valid.`;
-    }
-    let value : string | null = boundModel[fieldName];        
-    this.innerHTML = value || "";
-    let update = function(){
-        var newValue = boundModel[fieldName];
-        if (newValue !== value){
-            value = newValue;
-            htmlElement.innerText = newValue;
+        let value : string | null = boundModel[fieldName];        
+        this.innerHTML = value || "";
+        let update = function(){
+            var newValue = boundModel[fieldName];
+            if (newValue !== value){
+                value = newValue;
+                htmlElement.innerHTML = newValue;
+            }
         }
+        return update;
+    },
+    innerText: function<T extends BoundType>(this : HTMLElement, boundModel : T, ...params : string[]) : Function{        
+        // Set inner text at start. Not waiting.
+        let fieldName = params[0];
+        let htmlElement = this;
+        if (boundModel[fieldName] === undefined){            
+            throw `innerText: FieldName ${fieldName} wasn't valid.`;
+        }
+        let value : string | null = boundModel[fieldName];        
+        this.innerHTML = value || "";
+        let update = function(){
+            var newValue = boundModel[fieldName];
+            if (newValue !== value){
+                value = newValue;
+                htmlElement.innerText = newValue;
+            }
+        }
+        return update;
+    },
+    click: function<T extends BoundType>(this : HTMLElement, boundModel : Model, ...params : string[]) : null {        
+        let fieldName = params[0];
+        if (boundModel[fieldName] === undefined){            
+            throw `click: FieldName ${fieldName} wasn't valid.`;
+        }
+        this.addEventListener('click', function(ev : MouseEvent){
+            boundModel[fieldName](ev, ...params.slice(1));
+        });
+        return null;
+    },
+    numberInput: function<T extends BoundType>(this : HTMLElement, boundModel : Model, ...params : string[]) : null {         
+        let fieldName = params[0];
+        if (boundModel[fieldName] === undefined){            
+            throw `numberInput: FieldName ${fieldName} wasn't valid.`;
+        }
+        if (!(this instanceof HTMLInputElement)){
+            throw `numberInput: FieldName ${fieldName} wasn't an HTML Input Element. Please only use on HTML Input Elements`;
+        }
+        this.addEventListener('keyup', function(ev : Event){
+            boundModel[fieldName] = Number((<HTMLInputElement>ev.target).value);
+        })
+        //TODO: Should this be two way binding or not?
+        return null;
+    },
+    textInput: function<T extends BoundType>(this : HTMLElement, boundModel : Model, ...params : string[]) : null{         
+        let fieldName = params[0];
+        if (boundModel[fieldName] === undefined){            
+            throw `textInput: FieldName ${fieldName} wasn't valid.`;
+        }
+        if (!(this instanceof HTMLInputElement)){
+            throw `textInput: FieldName ${fieldName} wasn't an HTML Input Element. Please only use on HTML Input Elements`;
+        }
+        this.addEventListener('keyup', function(ev : Event){
+            boundModel[fieldName] = (<HTMLInputElement>ev.target).value;
+        })
+        //TODO: Should this be two way binding or not?
+        return null;
     }
-    return update;
-},
-click: function<T extends BoundType>(this : HTMLElement, boundModel : Model, ...params : string[]) : null {        
-    let fieldName = params[0];
-    if (boundModel[fieldName] === undefined){            
-        throw `click: FieldName ${fieldName} wasn't valid.`;
-    }
-    this.addEventListener('click', function(ev : MouseEvent){
-        boundModel[fieldName](ev, ...params.slice(1));
-    });
-    return null;
-},
- numberInput: function<T extends BoundType>(this : HTMLElement, boundModel : Model, ...params : string[]) : null {         
-    let fieldName = params[0];
-    if (boundModel[fieldName] === undefined){            
-        throw `numberInput: FieldName ${fieldName} wasn't valid.`;
-    }
-    if (!(this instanceof HTMLInputElement)){
-        throw `numberInput: FieldName ${fieldName} wasn't an HTML Input Element. Please only use on HTML Input Elements`;
-    }
-    this.addEventListener('keyup', function(ev : Event){
-        boundModel[fieldName] = Number((<HTMLInputElement>ev.target).value);
-    })
-    //TODO: Should this be two way binding or not?
-    return null;
-},
-textInput: function<T extends BoundType>(this : HTMLElement, boundModel : Model, ...params : string[]) : null{         
-    let fieldName = params[0];
-    if (boundModel[fieldName] === undefined){            
-        throw `textInput: FieldName ${fieldName} wasn't valid.`;
-    }
-    if (!(this instanceof HTMLInputElement)){
-        throw `textInput: FieldName ${fieldName} wasn't an HTML Input Element. Please only use on HTML Input Elements`;
-    }
-    this.addEventListener('keyup', function(ev : Event){
-        boundModel[fieldName] = (<HTMLInputElement>ev.target).value;
-    })
-    //TODO: Should this be two way binding or not?
-    return null;
-}
 }

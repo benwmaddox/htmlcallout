@@ -20,12 +20,30 @@
         <div>
             <input type="text" data-bind="textInput: boundText" value="" />    
             <span  data-bind="innerHTML: boundText"  ></span>
-        </div>
-
+        </div>        
     </div>
     <div id="secondary">        
         <h1 data-bind="innerText:header"></h1>     
+        <h1 data-bind="innerText:boundText"></h1>     
     </div>
+
+    <div id="repeaterTest" data-bind="repeat:boundArray">
+        <!-- TODO: After making property lookups work for set/get in nesting and array indexes: take innerhtml from here, store in function, apply for each item in array
+        For this, might need to allow resolution of values in addition to just passing values. For example:
+        <button data-bind="click:showDetail {{$index}}"></button>
+
+        <button data-bind="click:showDetailById array[{{$index}}].id"></button>
+
+        Could likely have anything with $index be replaced by the index of the array.
+        Could also have anything surrounded by {{}} be a pre-processed value
+
+        Likely will have to make the queryall actually walk a tree, node by node, so that we don't too eagerly pull in child nodes and bind them.
+        -->
+    </div>
+
+    <!-- 
+        Likely should have an if action that will take HTML content out of the DOM in a similar way to repeat. Insert it again if needed
+     -->
  
     
     </body>
