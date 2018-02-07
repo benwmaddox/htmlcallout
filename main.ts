@@ -10,7 +10,7 @@ class Model  {
         alert('It works! ' + text)
     };
     public sub : SubModel = new SubModel();
-    public subList : SubModel[]  = [(new SubModel(), new SubModel())]
+    public subList : SubModel[]  = [new SubModel(), new SubModel()]
 
     public incrementCounter : number = 0;
     public increase = (ev:Event, text:string) => {

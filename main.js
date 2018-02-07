@@ -20,7 +20,7 @@ var Model = (function () {
         this.header = "Sample";
         this.alertButtonText = "Click to alert";
         this.sub = new SubModel();
-        this.subList = [(new SubModel(), new SubModel())];
+        this.subList = [new SubModel(), new SubModel()];
         this.incrementCounter = 0;
         this.increase = function (ev, text) {
             _this.incrementCounter++;

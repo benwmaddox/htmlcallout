@@ -61,38 +61,49 @@ class Callout<T extends BoundType>{
     }
 }
 
-var getFieldValue = function<T extends BoundType>(boundModel : T, path : string, index : number = 0){
+var getFieldValue = function<T extends BoundType>(boundModel : T, path : string, index : number = 0) : any {
     var remainingPath = path;
     var pathParts : any[] = [];    
     while (remainingPath.length > 0){
         var remainingPathRestart : boolean = false;
         for (var i = 0; i < remainingPath.length && !remainingPathRestart; i++){         
             if (remainingPath[i] == "."){
-                var part = remainingPath.substr(0, i);
                 if (i > 0){
+                    var part = remainingPath.substr(0, i);
                     pathParts.push(part);
                 }                
                 remainingPath = remainingPath.substr(i+1);
                 remainingPathRestart = true;
             }   
-            else if (remainingPath[i] == "["){
-                pathParts.push(remainingPath.substr(0, i));
+            else if (remainingPath[i] == "["){                
+                if (i > 0){
+                    pathParts.push(remainingPath.substr(0, i));
+                }
                 remainingPath = remainingPath.substr(i+1);                
                 remainingPathRestart = true;
             }
             else if (remainingPath[i] == "]"){
                 var part = remainingPath.substr(0, i);                
-                pathParts.push(Number(part)); // Check for number?
+                pathParts.push(Number(part)); // Always check for number?
                 remainingPath = remainingPath.substr(i+1);                
                 remainingPathRestart = true;
             }
-            else if (remainingPath.length > 2 && (remainingPath.substr(i, 2) == "{{" || remainingPath.substr(i, 2) == "}}" )){
-                pathParts.push(remainingPath.substr(0, i));
+            else if (remainingPath.length > 2 && remainingPath.substr(i, 2) == "{{" ){                                               
+                if (i > 0){
+                    var part = remainingPath.substr(0, i)
+                    pathParts.push(part);
+                }          
+                remainingPath = remainingPath.substr(i+2);
+                remainingPathRestart = true;
+            }
+            else if (remainingPath.length > 2 && remainingPath.substr(i, 2) == "}}" ){
+                var subPart = getFieldValue(boundModel, remainingPath.substr(0, i));
+                pathParts.push(subPart);
                 remainingPath = remainingPath.substr(i+2);
                 remainingPathRestart = true;
             }
             else if (remainingPath.length > 6 && remainingPath.substr(i, 6) == "$index"){
-                pathParts.push(remainingPath.substr(0, i));
+                pathParts.push(index);
                 remainingPath = remainingPath.substr(i+6);
                 remainingPathRestart = true;
             }
