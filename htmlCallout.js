@@ -22,15 +22,18 @@ var Callout = (function () {
         this.runUpdates();
     };
     Callout.prototype.applyBindings = function () {
-        var modelNodes = this.rootElement.querySelectorAll('[data-bind]:not([data-bound-id])');
-        for (var i = 0; i < modelNodes.length; i++) {
-            var item = modelNodes.item(i);
+        var item = this.rootElement.querySelector('[data-bind]:not([data-bound-id])');
+        while (item != null) {
             item.setAttribute("data-bound-id", (Callout.calloutId).toString() + "_" + (this.dataBoundId++).toString());
             var modelValue = item.getAttribute("data-bind");
             if (modelValue !== null) {
                 this.applyBoundActions(item, modelValue);
             }
+            item = this.rootElement.querySelector('[data-bind]:not([data-bound-id])');
         }
+        // for(var i = 0; i < modelNodes.length; i++){
+        //     var item = modelNodes.item(i);
+        // }
     };
     Callout.prototype.applyBoundActions = function (element, attribute) {
         var _this = this;
@@ -81,7 +84,9 @@ var getFieldValue = function (boundModel, path, index) {
             }
             else if (remainingPath[i] == "]") {
                 var part = remainingPath.substr(0, i);
-                pathParts.push(Number(part)); // Always check for number?
+                if (i > 0) {
+                    pathParts.push(Number(part)); // Always check for number?
+                }
                 remainingPath = remainingPath.substr(i + 1);
                 remainingPathRestart = true;
             }
@@ -136,20 +141,20 @@ var setFieldValue = function (boundModel, path, value, index) {
 // TODO: build out a setter method that can expand fieldnames that traverse multiple layers of objects.
 var StandardActionLibrary = {
     innerHTML: function (boundModel) {
+        // Set inner text at start. Not waiting.
         var params = [];
         for (var _i = 1; _i < arguments.length; _i++) {
             params[_i - 1] = arguments[_i];
         }
-        // Set inner text at start. Not waiting.
-        var fieldName = params[0];
+        var fieldPath = params[0];
         var htmlElement = this;
-        if (boundModel[fieldName] === undefined) {
-            throw "innerHTML: FieldName " + fieldName + " wasn't valid.";
-        }
-        var value = boundModel[fieldName];
+        // if (boundModel[fieldPath] === undefined){            
+        //     throw `innerHTML: FieldName ${fieldPath} wasn't valid.`;
+        // }
+        var value = getFieldValue(boundModel, fieldPath);
         this.innerHTML = value || "";
         var update = function () {
-            var newValue = boundModel[fieldName];
+            var newValue = getFieldValue(boundModel, fieldPath);
             if (newValue !== value) {
                 value = newValue;
                 htmlElement.innerHTML = newValue;
@@ -163,15 +168,15 @@ var StandardActionLibrary = {
             params[_i - 1] = arguments[_i];
         }
         // Set inner text at start. Not waiting.
-        var fieldName = params[0];
+        var fieldPath = params[0];
         var htmlElement = this;
-        if (boundModel[fieldName] === undefined) {
-            throw "innerText: FieldName " + fieldName + " wasn't valid.";
-        }
-        var value = boundModel[fieldName];
+        // if (boundModel[fieldName] === undefined){            
+        //     throw `innerText: FieldName ${fieldName} wasn't valid.`;
+        // }
+        var value = getFieldValue(boundModel, fieldPath);
         this.innerHTML = value || "";
         var update = function () {
-            var newValue = boundModel[fieldName];
+            var newValue = getFieldValue(boundModel, fieldPath);
             if (newValue !== value) {
                 value = newValue;
                 htmlElement.innerText = newValue;
@@ -239,7 +244,7 @@ var StandardActionLibrary = {
         // Templaet acquired, empty the repeat item
         this.innerHTML = "";
         var fieldPath = params[0];
-        var value = getFieldValue(boundModel, fieldPath);
+        var value = null;
         var update = function () {
             var newValue = getFieldValue(boundModel, fieldPath);
             // TODO: check more than just reference values?            
@@ -251,13 +256,14 @@ var StandardActionLibrary = {
                         var itemTemplate = repeatTemplate.replace("$index", i.toString());
                         templateList.push(itemTemplate);
                     }
-                    htmlElement.innerHTML = templateList.join();
+                    htmlElement.innerHTML = templateList.join("");
                 }
                 else {
-                    htmlElement.innerText = "";
+                    htmlElement.innerText = "Not an array";
                 }
             }
         };
+        update();
         return update;
     }
 };

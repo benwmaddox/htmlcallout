@@ -28,15 +28,19 @@ class Callout<T extends BoundType>{
         }
     }
     public applyBindings(){
-        var modelNodes = this.rootElement.querySelectorAll('[data-bind]:not([data-bound-id])');
-        for(var i = 0; i < modelNodes.length; i++){
-            var item = modelNodes.item(i);
+        var item = this.rootElement.querySelector('[data-bind]:not([data-bound-id])');
+        while (item != null){
             item.setAttribute("data-bound-id", (Callout.calloutId).toString()+"_"+(this.dataBoundId++).toString());                
             var modelValue = item.getAttribute("data-bind");
             if (modelValue !== null){
                 this.applyBoundActions(item, <string>modelValue);                
             }
+            item = this.rootElement.querySelector('[data-bind]:not([data-bound-id])');
         }
+
+        // for(var i = 0; i < modelNodes.length; i++){
+        //     var item = modelNodes.item(i);
+        // }
     }
     private applyBoundActions(element : Element, attribute : string){
         // Different actions split by ;. Action type then : then comma split values.  
@@ -84,7 +88,9 @@ var getFieldValue = function<T extends BoundType>(boundModel : T, path : string,
             }
             else if (remainingPath[i] == "]"){
                 var part = remainingPath.substr(0, i);                
-                pathParts.push(Number(part)); // Always check for number?
+                if (i > 0){
+                    pathParts.push(Number(part)); // Always check for number?
+                }
                 remainingPath = remainingPath.substr(i+1);                
                 remainingPathRestart = true;
             }
@@ -146,15 +152,16 @@ var setFieldValue = function<T extends BoundType>(boundModel : T, path : string,
 let StandardActionLibrary = {
     innerHTML: function<T extends BoundType>(this : HTMLElement, boundModel : T, ...params : string[]){        
         // Set inner text at start. Not waiting.
-        let fieldName = params[0];
+        
+        let fieldPath = params[0];
         let htmlElement = this;
-        if (boundModel[fieldName] === undefined){            
-            throw `innerHTML: FieldName ${fieldName} wasn't valid.`;
-        }
-        let value : string | null = boundModel[fieldName];        
+        // if (boundModel[fieldPath] === undefined){            
+        //     throw `innerHTML: FieldName ${fieldPath} wasn't valid.`;
+        // }
+        let value : string | null = getFieldValue(boundModel, fieldPath);
         this.innerHTML = value || "";
         let update = function(){
-            var newValue = boundModel[fieldName];
+            var newValue = getFieldValue(boundModel, fieldPath);
             if (newValue !== value){
                 value = newValue;
                 htmlElement.innerHTML = newValue;
@@ -164,15 +171,15 @@ let StandardActionLibrary = {
     },
     innerText: function<T extends BoundType>(this : HTMLElement, boundModel : T, ...params : string[]) : Function{        
         // Set inner text at start. Not waiting.
-        let fieldName = params[0];
+        let fieldPath = params[0];
         let htmlElement = this;
-        if (boundModel[fieldName] === undefined){            
-            throw `innerText: FieldName ${fieldName} wasn't valid.`;
-        }
-        let value : string | null = boundModel[fieldName];        
+        // if (boundModel[fieldName] === undefined){            
+        //     throw `innerText: FieldName ${fieldName} wasn't valid.`;
+        // }
+        let value : string | null = getFieldValue(boundModel, fieldPath);        
         this.innerHTML = value || "";
         let update = function(){
-            var newValue = boundModel[fieldName];
+            var newValue = getFieldValue(boundModel, fieldPath);
             if (newValue !== value){
                 value = newValue;
                 htmlElement.innerText = newValue;
@@ -217,16 +224,14 @@ let StandardActionLibrary = {
         })
         //TODO: Should this be two way binding or not?
         return null;
-    }
-    ,
+    },
     repeat:  function<T extends BoundType>(this : HTMLElement, boundModel : T, ...params : string[]) : Function | null {        
         var repeatTemplate = this.innerHTML;
         let htmlElement = this;
         // Templaet acquired, empty the repeat item
         this.innerHTML = "";
         let fieldPath = params[0];
-        let value : any[] | null =  getFieldValue(boundModel, fieldPath);    
-        
+        var value : any[] | null =  null;            
         let update = function(){
             var newValue = getFieldValue(boundModel, fieldPath);
             // TODO: check more than just reference values?            
@@ -238,13 +243,14 @@ let StandardActionLibrary = {
                         var itemTemplate = repeatTemplate.replace("$index", i.toString());                        
                         templateList.push(itemTemplate);
                     }
-                    htmlElement.innerHTML = templateList.join();
+                    htmlElement.innerHTML = templateList.join("");
                 }
                 else{
-                    htmlElement.innerText = "";    
+                    htmlElement.innerText = "Not an array";    
                 }                
             }
         }
+        update();
         return update;
     }
 

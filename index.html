@@ -27,8 +27,10 @@
         <h1 data-bind="innerText:boundText"></h1>     
     </div>
 
-    <div id="repeaterTest" data-bind="repeat:subObjects">
-        <div data-bind="innerText: subObjects[$index].subHeader"></div>
+    <div id="repeaterTest" >
+        <div data-bind="repeat:subObjects">
+            <div data-bind="innerText: subObjects[$index].subHeader"></div>
+        </div>
     </div>
     <!-- TODO: After making property lookups work for set/get in nesting and array indexes: take innerhtml from here, store in function, apply for each item in array
     For this, might need to allow resolution of values in addition to just passing values. For example:
