@@ -47,3 +47,19 @@ var secondaryCallout = new Callout<OtherModel>(secondModel, <HTMLDivElement>docu
 secondaryCallout.runUpdatesOnInterval(1000);
 
 //////////////////////////////////////
+class RepeaterModel {
+    [key:string]: any;
+    public header : string = "Second Sample";
+    public subObjects : SubModel[] = [ new SubModel(), new SubModel(), new SubModel()];
+}
+var repeatModel = new RepeaterModel();
+repeatModel.subObjects[0].subHeader = "Header 0";
+repeatModel.subObjects[1].subHeader = "Header 1";
+repeatModel.subObjects[2].subHeader = "Header 2";
+var repeatActions = {        
+    ...StandardActionLibrary
+}
+var repeatCallout = new Callout<RepeaterModel>(repeatModel, <HTMLDivElement>document.getElementById('repeaterTest'), repeatActions);
+repeatCallout.runUpdatesOnInterval(1000);
+
+//////////////////////////////////////

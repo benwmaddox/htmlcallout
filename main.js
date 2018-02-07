@@ -57,4 +57,19 @@ var secondaryActions = {
 };
 var secondaryCallout = new Callout(secondModel, document.getElementById('secondary'), secondaryActions);
 secondaryCallout.runUpdatesOnInterval(1000);
+//////////////////////////////////////
+var RepeaterModel = (function () {
+    function RepeaterModel() {
+        this.header = "Second Sample";
+        this.subObjects = [new SubModel(), new SubModel(), new SubModel()];
+    }
+    return RepeaterModel;
+}());
+var repeatModel = new RepeaterModel();
+repeatModel.subObjects[0].subHeader = "Header 0";
+repeatModel.subObjects[1].subHeader = "Header 1";
+repeatModel.subObjects[2].subHeader = "Header 2";
+var repeatActions = __assign({}, StandardActionLibrary);
+var repeatCallout = new Callout(repeatModel, document.getElementById('repeaterTest'), repeatActions);
+repeatCallout.runUpdatesOnInterval(1000);
 ////////////////////////////////////// 

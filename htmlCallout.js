@@ -228,5 +228,36 @@ var StandardActionLibrary = {
         });
         //TODO: Should this be two way binding or not?
         return null;
+    },
+    repeat: function (boundModel) {
+        var params = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            params[_i - 1] = arguments[_i];
+        }
+        var repeatTemplate = this.innerHTML;
+        var htmlElement = this;
+        // Templaet acquired, empty the repeat item
+        this.innerHTML = "";
+        var fieldPath = params[0];
+        var value = getFieldValue(boundModel, fieldPath);
+        var update = function () {
+            var newValue = getFieldValue(boundModel, fieldPath);
+            // TODO: check more than just reference values?            
+            if (newValue !== value) {
+                value = newValue;
+                if (Array.isArray(value)) {
+                    var templateList = [];
+                    for (var i = 0; i < value.length; i++) {
+                        var itemTemplate = repeatTemplate.replace("$index", i.toString());
+                        templateList.push(itemTemplate);
+                    }
+                    htmlElement.innerHTML = templateList.join();
+                }
+                else {
+                    htmlElement.innerText = "";
+                }
+            }
+        };
+        return update;
     }
 };

@@ -180,7 +180,7 @@ let StandardActionLibrary = {
         }
         return update;
     },
-    click: function<T extends BoundType>(this : HTMLElement, boundModel : Model, ...params : string[]) : null {        
+    click: function<T extends BoundType>(this : HTMLElement, boundModel : T, ...params : string[]) : null {        
         let fieldName = params[0];
         if (boundModel[fieldName] === undefined){            
             throw `click: FieldName ${fieldName} wasn't valid.`;
@@ -190,7 +190,7 @@ let StandardActionLibrary = {
         });
         return null;
     },
-    numberInput: function<T extends BoundType>(this : HTMLElement, boundModel : Model, ...params : string[]) : null {         
+    numberInput: function<T extends BoundType>(this : HTMLElement, boundModel : T, ...params : string[]) : null {         
         let fieldName = params[0];
         if (boundModel[fieldName] === undefined){            
             throw `numberInput: FieldName ${fieldName} wasn't valid.`;
@@ -204,7 +204,7 @@ let StandardActionLibrary = {
         //TODO: Should this be two way binding or not?
         return null;
     },
-    textInput: function<T extends BoundType>(this : HTMLElement, boundModel : Model, ...params : string[]) : null{         
+    textInput: function<T extends BoundType>(this : HTMLElement, boundModel : T, ...params : string[]) : null{         
         let fieldName = params[0];
         if (boundModel[fieldName] === undefined){            
             throw `textInput: FieldName ${fieldName} wasn't valid.`;
@@ -218,4 +218,34 @@ let StandardActionLibrary = {
         //TODO: Should this be two way binding or not?
         return null;
     }
+    ,
+    repeat:  function<T extends BoundType>(this : HTMLElement, boundModel : T, ...params : string[]) : Function | null {        
+        var repeatTemplate = this.innerHTML;
+        let htmlElement = this;
+        // Templaet acquired, empty the repeat item
+        this.innerHTML = "";
+        let fieldPath = params[0];
+        let value : any[] | null =  getFieldValue(boundModel, fieldPath);    
+        
+        let update = function(){
+            var newValue = getFieldValue(boundModel, fieldPath);
+            // TODO: check more than just reference values?            
+            if (newValue !== value){
+                value = newValue;
+                if (Array.isArray(value)){
+                    var templateList : string[]= [];
+                    for (var i = 0; i < value.length; i++){
+                        var itemTemplate = repeatTemplate.replace("$index", i.toString());                        
+                        templateList.push(itemTemplate);
+                    }
+                    htmlElement.innerHTML = templateList.join();
+                }
+                else{
+                    htmlElement.innerText = "";    
+                }                
+            }
+        }
+        return update;
+    }
+
 }
