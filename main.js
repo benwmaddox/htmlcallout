@@ -41,8 +41,8 @@ var actions = __assign({}, StandardActionLibrary
 // Could append custom ones here...
 );
 var model = new Model();
-// var callout = new Callout<Model>(model, <HTMLDivElement>document.getElementById('main'), actions);
-// callout.runUpdatesOnInterval(16);
+var callout = new Callout(model, document.getElementById('main'), actions);
+callout.runUpdatesOnInterval(16);
 //////////////////////////////////////
 var OtherModel = (function () {
     function OtherModel() {
@@ -55,8 +55,8 @@ var secondModel = new OtherModel();
 var secondaryActions = {
     innerText: StandardActionLibrary.innerText
 };
-// var secondaryCallout = new Callout<OtherModel>(secondModel, <HTMLDivElement>document.getElementById('secondary'), secondaryActions);
-// secondaryCallout.runUpdatesOnInterval(1000);
+var secondaryCallout = new Callout(secondModel, document.getElementById('secondary'), secondaryActions);
+secondaryCallout.runUpdatesOnInterval(1000);
 //////////////////////////////////////
 var RepeaterModel = (function () {
     function RepeaterModel() {
@@ -71,5 +71,5 @@ repeatModel.subObjects[1].subHeader = "Header 1";
 repeatModel.subObjects[2].subHeader = "Header 2";
 var repeatActions = __assign({}, StandardActionLibrary);
 var repeatCallout = new Callout(repeatModel, document.getElementById('repeaterTest'), repeatActions);
-repeatCallout.runUpdatesOnInterval(1000);
+repeatCallout.runUpdatesOnInterval(16);
 ////////////////////////////////////// 

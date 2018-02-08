@@ -28,8 +28,8 @@ var actions = {
     // Could append custom ones here...
 }
 var model = new Model();
-// var callout = new Callout<Model>(model, <HTMLDivElement>document.getElementById('main'), actions);
-// callout.runUpdatesOnInterval(16);
+var callout = new Callout<Model>(model, <HTMLDivElement>document.getElementById('main'), actions);
+callout.runUpdatesOnInterval(16);
 
 
 
@@ -43,8 +43,8 @@ var secondModel = new OtherModel();
 var secondaryActions = {    
     innerText : StandardActionLibrary.innerText
 }
-// var secondaryCallout = new Callout<OtherModel>(secondModel, <HTMLDivElement>document.getElementById('secondary'), secondaryActions);
-// secondaryCallout.runUpdatesOnInterval(1000);
+var secondaryCallout = new Callout<OtherModel>(secondModel, <HTMLDivElement>document.getElementById('secondary'), secondaryActions);
+secondaryCallout.runUpdatesOnInterval(1000);
 
 //////////////////////////////////////
 class RepeaterModel {
@@ -60,6 +60,6 @@ var repeatActions = {
     ...StandardActionLibrary
 }
 var repeatCallout = new Callout<RepeaterModel>(repeatModel, <HTMLDivElement>document.getElementById('repeaterTest'), repeatActions);
-repeatCallout.runUpdatesOnInterval(1000);
+repeatCallout.runUpdatesOnInterval(16);
 
 //////////////////////////////////////

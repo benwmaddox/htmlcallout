@@ -29,7 +29,8 @@
 
     <div id="repeaterTest" >
         <div data-bind="repeat:subObjects">
-            <div data-bind="innerText: subObjects[$index].subHeader"></div>
+            <h1 data-bind="innerText: subObjects[$index].subHeader"></h1>
+            <div>This is index $index</div>
         </div>
     </div>
     <!-- TODO: After making property lookups work for set/get in nesting and array indexes: take innerhtml from here, store in function, apply for each item in array

@@ -247,13 +247,16 @@ var StandardActionLibrary = {
         var value = null;
         var update = function () {
             var newValue = getFieldValue(boundModel, fieldPath);
-            // TODO: check more than just reference values?            
+            // TODO: check more than just reference values. Have to see if content has changed (Maybe just length)
             if (newValue !== value) {
                 value = newValue;
                 if (Array.isArray(value)) {
                     var templateList = [];
                     for (var i = 0; i < value.length; i++) {
-                        var itemTemplate = repeatTemplate.replace("$index", i.toString());
+                        var itemTemplate = repeatTemplate;
+                        while (itemTemplate.indexOf('$index') !== -1) {
+                            itemTemplate = itemTemplate.replace("$index", i.toString());
+                        }
                         templateList.push(itemTemplate);
                     }
                     htmlElement.innerHTML = templateList.join("");
@@ -261,8 +264,10 @@ var StandardActionLibrary = {
                 else {
                     htmlElement.innerText = "Not an array";
                 }
+                // TODO: have to figure out how to force binding application here
             }
         };
+        // TODO: don't call update right away
         update();
         return update;
     }
