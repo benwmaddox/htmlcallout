@@ -72,4 +72,6 @@ repeatModel.subObjects[2].subHeader = "Header 2";
 var repeatActions = __assign({}, StandardActionLibrary);
 var repeatCallout = new Callout(repeatModel, document.getElementById('repeaterTest'), repeatActions);
 repeatCallout.runUpdatesOnInterval(16);
+//Testing updates:
+setInterval(function () { return repeatModel.subObjects.push(new SubModel()); }, 3000);
 ////////////////////////////////////// 

@@ -5,6 +5,7 @@ var Callout = (function () {
         this.dataBoundId = 1;
         this.updateCallbacks = [];
         this.runUpdates = function () {
+            _this.applyBindings();
             var callbacks = _this.updateCallbacks;
             for (var i = 0; i < callbacks.length; i++) {
                 callbacks[i]();
@@ -62,6 +63,10 @@ var Callout = (function () {
 }());
 var getFieldValue = function (boundModel, path, index) {
     if (index === void 0) { index = 0; }
+    // Split on .
+    // Split on []
+    // replace anything in {{}} with result of it (run another getFieldValue first)
+    // replace $index with the actual index, if applicable
     var remainingPath = path;
     var pathParts = [];
     while (remainingPath.length > 0) {
@@ -115,20 +120,11 @@ var getFieldValue = function (boundModel, path, index) {
             }
         }
     }
-    // while(remainingPath.indexOf(".") !== -1 || remainingPath.indexOf("{{") !== -1 || remainingPath.indexOf("[") !== -1 || remainingPath.indexOf("$index") !== -1){
-    // }
     var property = boundModel;
     for (var i = 0; i < pathParts.length; i++) {
         property = property[pathParts[i]];
     }
     return property;
-    // while (remainingPath.indexOf("$index") !== -1){
-    //     remainingPath = remainingPath.replace("$index", index.toString());
-    // }
-    // Split on .
-    // Split on []
-    // replace anything in {{}} with result of it (run another getFieldValue first)
-    // replace $index with the actual index, if applicable
 };
 var setFieldValue = function (boundModel, path, value, index) {
     if (index === void 0) { index = 0; }
@@ -137,7 +133,6 @@ var setFieldValue = function (boundModel, path, value, index) {
     // replace anything in {{}} with result of it (run another getFieldValue first)
     // replace $index with the actual index, if applicable
 };
-// TODO: build out a getter method that can expand fieldnames that traverse multiple layers of objects.
 // TODO: build out a setter method that can expand fieldnames that traverse multiple layers of objects.
 var StandardActionLibrary = {
     innerHTML: function (boundModel) {
@@ -240,35 +235,43 @@ var StandardActionLibrary = {
             params[_i - 1] = arguments[_i];
         }
         var repeatTemplate = this.innerHTML;
+        // Template acquired, empty the repeat item
         var htmlElement = this;
-        // Templaet acquired, empty the repeat item
         this.innerHTML = "";
         var fieldPath = params[0];
-        var value = null;
+        var arrayLength = 0;
         var update = function () {
             var newValue = getFieldValue(boundModel, fieldPath);
-            // TODO: check more than just reference values. Have to see if content has changed (Maybe just length)
-            if (newValue !== value) {
-                value = newValue;
-                if (Array.isArray(value)) {
-                    var templateList = [];
-                    for (var i = 0; i < value.length; i++) {
-                        var itemTemplate = repeatTemplate;
-                        while (itemTemplate.indexOf('$index') !== -1) {
-                            itemTemplate = itemTemplate.replace("$index", i.toString());
-                        }
-                        templateList.push(itemTemplate);
+            if (!Array.isArray(newValue)) {
+                throw 'Data source is not an array';
+            }
+            if (newValue.length > arrayLength && htmlElement.insertAdjacentElement) {
+                var templateList = [];
+                for (var i = arrayLength; i < newValue.length; i++) {
+                    var itemTemplate = repeatTemplate;
+                    while (itemTemplate.indexOf('$index') !== -1) {
+                        itemTemplate = itemTemplate.replace("$index", i.toString());
                     }
-                    htmlElement.innerHTML = templateList.join("");
+                    templateList.push(itemTemplate);
                 }
-                else {
-                    htmlElement.innerText = "Not an array";
-                }
+                htmlElement.insertAdjacentHTML("beforeend", templateList.join(""));
                 // TODO: have to figure out how to force binding application here
             }
+            else if (newValue.length < arrayLength || !htmlElement.insertAdjacentElement) {
+                var templateList = [];
+                for (var i = 0; i < newValue.length; i++) {
+                    var itemTemplate = repeatTemplate;
+                    while (itemTemplate.indexOf('$index') !== -1) {
+                        itemTemplate = itemTemplate.replace("$index", i.toString());
+                    }
+                    templateList.push(itemTemplate);
+                }
+                htmlElement.innerHTML = templateList.join("");
+            }
+            arrayLength = newValue.length;
         };
         // TODO: don't call update right away
-        update();
+        // update(); 
         return update;
     }
 };

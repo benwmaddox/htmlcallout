@@ -22,6 +22,7 @@ class Callout<T extends BoundType>{
         this.runUpdates();
     }
     runUpdates = () => {
+        this.applyBindings();
         var callbacks = this.updateCallbacks;
         for(var i=0;i < callbacks.length;i++){
             callbacks[i]();
@@ -65,7 +66,11 @@ class Callout<T extends BoundType>{
     }
 }
 
-var getFieldValue = function<T extends BoundType>(boundModel : T, path : string, index : number = 0) : any {
+var getFieldValue = function<T extends BoundType>(boundModel : T, path : string, index : number = 0) : any {    
+    // Split on .
+    // Split on []
+    // replace anything in {{}} with result of it (run another getFieldValue first)
+    // replace $index with the actual index, if applicable
     var remainingPath = path;
     var pathParts : any[] = [];    
     while (remainingPath.length > 0){
@@ -119,23 +124,11 @@ var getFieldValue = function<T extends BoundType>(boundModel : T, path : string,
             }
         }
     }
-    // while(remainingPath.indexOf(".") !== -1 || remainingPath.indexOf("{{") !== -1 || remainingPath.indexOf("[") !== -1 || remainingPath.indexOf("$index") !== -1){
-
-    // }
-    
     var property = boundModel;
     for (var i =0; i < pathParts.length;i++){
         property = property[pathParts[i]];
     }
     return property;
-    // while (remainingPath.indexOf("$index") !== -1){
-    //     remainingPath = remainingPath.replace("$index", index.toString());
-    // }
-
-    // Split on .
-    // Split on []
-    // replace anything in {{}} with result of it (run another getFieldValue first)
-    // replace $index with the actual index, if applicable
 
 }
 
@@ -147,7 +140,6 @@ var setFieldValue = function<T extends BoundType>(boundModel : T, path : string,
 }
 
 
-// TODO: build out a getter method that can expand fieldnames that traverse multiple layers of objects.
 // TODO: build out a setter method that can expand fieldnames that traverse multiple layers of objects.
 let StandardActionLibrary = {
     innerHTML: function<T extends BoundType>(this : HTMLElement, boundModel : T, ...params : string[]){        
@@ -227,37 +219,48 @@ let StandardActionLibrary = {
     },
     repeat:  function<T extends BoundType>(this : HTMLElement, boundModel : T, ...params : string[]) : Function | null {        
         var repeatTemplate = this.innerHTML;
+        // Template acquired, empty the repeat item
         let htmlElement = this;
-        // Templaet acquired, empty the repeat item
         this.innerHTML = "";
         let fieldPath = params[0];
-        var value : any[] | null =  null;            
+        var arrayLength :  number  =  0;            
         let update = function(){
             var newValue = getFieldValue(boundModel, fieldPath);
-            // TODO: check more than just reference values. Have to see if content has changed (Maybe just length)
-            if (newValue !== value){
-                value = newValue;
-                if (Array.isArray(value)){
-                    var templateList : string[]= [];
-                    for (var i = 0; i < value.length; i++){
-                        var itemTemplate = repeatTemplate;
-                        while (itemTemplate.indexOf('$index') !== -1){
-                            itemTemplate = itemTemplate.replace("$index", i.toString());                        
-                        }
-                        
-                        templateList.push(itemTemplate);
+            if (!Array.isArray(newValue)){                
+                throw 'Data source is not an array';
+            }
+            if (newValue.length > arrayLength && htmlElement.insertAdjacentElement){             
+                var templateList : string[]= [];
+                for (var i = arrayLength; i < newValue.length; i++){
+                    var itemTemplate = repeatTemplate;
+                    while (itemTemplate.indexOf('$index') !== -1){
+                        itemTemplate = itemTemplate.replace("$index", i.toString());                        
                     }
-                    htmlElement.innerHTML = templateList.join("");
+                    
+                    templateList.push(itemTemplate);
                 }
-                else{
-                    htmlElement.innerText = "Not an array";    
-                }                
+                htmlElement.insertAdjacentHTML("beforeend",  templateList.join(""));      
                 
                 // TODO: have to figure out how to force binding application here
             }
+            else  if (newValue.length < arrayLength || !htmlElement.insertAdjacentElement){          
+                var templateList : string[]= [];
+                for (var i = 0; i < newValue.length; i++){
+                    var itemTemplate = repeatTemplate;
+                    while (itemTemplate.indexOf('$index') !== -1){
+                        itemTemplate = itemTemplate.replace("$index", i.toString());                        
+                    }
+                    
+                    templateList.push(itemTemplate);
+                }
+                htmlElement.innerHTML = templateList.join("");      
+
+            }
+            
+            arrayLength = newValue.length;   
         }       
         // TODO: don't call update right away
-        update(); 
+        // update(); 
         return update;
     }
 

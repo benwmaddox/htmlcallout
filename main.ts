@@ -62,4 +62,8 @@ var repeatActions = {
 var repeatCallout = new Callout<RepeaterModel>(repeatModel, <HTMLDivElement>document.getElementById('repeaterTest'), repeatActions);
 repeatCallout.runUpdatesOnInterval(16);
 
+//Testing updates:
+
+setInterval(() => repeatModel.subObjects.push(new SubModel()), 3000)
+
 //////////////////////////////////////
